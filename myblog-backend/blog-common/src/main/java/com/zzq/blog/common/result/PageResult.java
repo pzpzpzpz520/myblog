@@ -1,0 +1,18 @@
+package com.zzq.blog.common.result;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class PageResult<T> {
+
+    private Long pageNum;
+    private Long pageSize;
+    private Long total;
+    private List<T> records;
+}

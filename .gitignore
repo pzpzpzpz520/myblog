@@ -1,0 +1,15 @@
+.DS_Store
+.idea/
+.vscode/
+*.iml
+
+myblog-frontend/node_modules/
+myblog-frontend/dist/
+myblog-frontend/.vite/
+myblog-frontend/coverage/
+
+myblog-backend/**/target/
+myblog-backend/.mvn/wrapper/maven-wrapper.jar.sha256
+myblog-backend/logs/
+
+*.log
