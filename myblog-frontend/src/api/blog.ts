@@ -21,7 +21,8 @@ import type {
 async function withFallback<T>(request: () => Promise<T>, fallback: () => T) {
   try {
     return await request();
-  } catch {
+  } catch (error) {
+    console.error('[myblog] API request failed, using fallback data:', error);
     return fallback();
   }
 }
