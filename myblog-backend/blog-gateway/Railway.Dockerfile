@@ -1,14 +1,11 @@
-FROM eclipse-temurin:17-jdk-jammy AS build
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 
 WORKDIR /workspace
 
-COPY myblog-backend/.mvn .mvn
-COPY myblog-backend/mvnw mvnw
 COPY myblog-backend/pom.xml pom.xml
 COPY myblog-backend/blog-gateway blog-gateway
 
-RUN chmod +x mvnw \
-    && ./mvnw -pl blog-gateway -am package -DskipTests
+RUN mvn -pl blog-gateway -am package -DskipTests
 
 FROM eclipse-temurin:17-jre-jammy
 
