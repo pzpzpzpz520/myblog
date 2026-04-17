@@ -6,6 +6,7 @@ COPY myblog-backend/pom.xml pom.xml
 COPY myblog-backend/blog-common blog-common
 COPY myblog-backend/blog-api blog-api
 COPY myblog-backend/blog-service-content blog-service-content
+COPY myblog-backend/blog-gateway blog-gateway
 
 RUN mvn -pl blog-service-content -am package -DskipTests
 

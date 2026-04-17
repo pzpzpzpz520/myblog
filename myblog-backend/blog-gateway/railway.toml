@@ -1,7 +1,7 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "myblog-backend/blog-gateway/Railway.Dockerfile"
-watchPatterns = ["myblog-backend/blog-gateway/**", "myblog-backend/pom.xml"]
+watchPatterns = ["myblog-backend/blog-gateway/**", "myblog-backend/blog-service-content/**", "myblog-backend/blog-api/**", "myblog-backend/blog-common/**", "myblog-backend/pom.xml"]
 
 [deploy]
 healthcheckPath = "/actuator/health"
