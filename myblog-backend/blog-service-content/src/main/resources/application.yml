@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: ${PORT:${SERVER_PORT:8081}}
 
 spring:
   application:
@@ -20,13 +20,15 @@ springdoc:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 logging:
   level:
-    root: debug
-    com.zzq.blog: debug
-    com.zzq.blog.content: debug
-    com.zaxxer.hikari: debug
-    org.springframework.jdbc: debug
-    org.mybatis: debug
+    root: ${LOGGING_LEVEL_ROOT:info}
+    com.zzq.blog: ${LOGGING_LEVEL_APP:info}
+    com.zaxxer.hikari: ${LOGGING_LEVEL_HIKARI:info}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

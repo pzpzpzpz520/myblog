@@ -1,0 +1,86 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: myblog-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-myblog}
+      TZ: ${TZ:-Asia/Shanghai}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./myblog-backend/blog-service-content/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./myblog-backend/blog-service-content/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql:ro
+      - ./myblog-backend/blog-service-content/src/main/resources/schema_comment.sql:/docker-entrypoint-initdb.d/03-schema_comment.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - myblog-network
+
+  blog-service-content:
+    build:
+      context: ./myblog-backend
+      dockerfile: blog-service-content/Dockerfile
+    container_name: blog-service-content
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8081
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: ${MYSQL_DATABASE:-myblog}
+      MYSQL_USERNAME: ${MYSQL_USERNAME:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT:-info}
+      LOGGING_LEVEL_APP: ${LOGGING_LEVEL_APP:-info}
+      LOGGING_LEVEL_HIKARI: ${LOGGING_LEVEL_HIKARI:-warn}
+    networks:
+      - myblog-network
+
+  blog-gateway:
+    build:
+      context: ./myblog-backend
+      dockerfile: blog-gateway/Dockerfile
+    container_name: blog-gateway
+    restart: unless-stopped
+    depends_on:
+      - blog-service-content
+    environment:
+      SERVER_PORT: 8080
+      CONTENT_SERVICE_URL: http://blog-service-content:8081
+      LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT:-info}
+      LOGGING_LEVEL_APP: ${LOGGING_LEVEL_APP:-info}
+    networks:
+      - myblog-network
+
+  myblog-frontend:
+    build:
+      context: ./myblog-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE: /api
+    container_name: myblog-frontend
+    restart: unless-stopped
+    depends_on:
+      - blog-gateway
+    environment:
+      PORT: 80
+      API_UPSTREAM: http://blog-gateway:8080
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    networks:
+      - myblog-network
+
+volumes:
+  mysql-data:
+
+networks:
+  myblog-network:

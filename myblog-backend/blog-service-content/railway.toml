@@ -1,0 +1,10 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "myblog-backend/blog-service-content/Railway.Dockerfile"
+watchPatterns = ["myblog-backend/blog-service-content/**", "myblog-backend/blog-api/**", "myblog-backend/blog-common/**", "myblog-backend/pom.xml"]
+
+[deploy]
+healthcheckPath = "/actuator/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

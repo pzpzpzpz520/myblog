@@ -13,3 +13,7 @@ myblog-backend/.mvn/wrapper/maven-wrapper.jar.sha256
 myblog-backend/logs/
 
 *.log
+.env
+.env.*
+!.env.example
+!.env.prod.example
