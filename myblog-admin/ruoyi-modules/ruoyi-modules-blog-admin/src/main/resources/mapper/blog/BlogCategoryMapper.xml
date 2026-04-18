@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.blogadmin.mapper.BlogCategoryMapper">
+
+    <resultMap id="BlogCategoryResult" type="BlogCategory">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="articleCount" column="article_count"/>
+    </resultMap>
+
+    <select id="selectCategoryList" parameterType="BlogCategoryQuery" resultMap="BlogCategoryResult">
+        select c.id,
+               c.name,
+               count(a.id) as article_count
+        from category c
+                 left join article a on a.category_id = c.id
+        <where>
+            <if test="name != null and name != ''">
+                and c.name like concat('%', #{name}, '%')
+            </if>
+        </where>
+        group by c.id, c.name
+        order by c.id asc
+    </select>
+
+    <select id="selectCategoryById" parameterType="Long" resultMap="BlogCategoryResult">
+        select c.id,
+               c.name,
+               count(a.id) as article_count
+        from category c
+                 left join article a on a.category_id = c.id
+        where c.id = #{categoryId}
+        group by c.id, c.name
+    </select>
+
+    <select id="checkCategoryNameUnique" resultType="BlogCategory">
+        select id, name
+        from category
+        where name = #{name}
+        <if test="excludeId != null">
+            and id != #{excludeId}
+        </if>
+        limit 1
+    </select>
+
+    <insert id="insertCategory" parameterType="BlogCategory" useGeneratedKeys="true" keyProperty="id">
+        insert into category (name)
+        values (#{name})
+    </insert>
+
+    <update id="updateCategory" parameterType="BlogCategory">
+        update category
+        set name = #{name}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCategoryById" parameterType="Long">
+        delete
+        from category
+        where id = #{categoryId}
+    </delete>
+
+    <select id="countArticleByCategoryId" parameterType="Long" resultType="Integer">
+        select count(1)
+        from article
+        where category_id = #{categoryId}
+    </select>
+
+</mapper>

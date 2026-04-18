@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.blogadmin.mapper.BlogArticleMapper">
+
+    <resultMap id="BlogArticleResult" type="BlogArticle">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="summary" column="summary"/>
+        <result property="contentMarkdown" column="content_markdown"/>
+        <result property="coverImage" column="cover_image"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="publishDate" column="publish_date"/>
+        <result property="readingTime" column="reading_time"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <sql id="selectArticleVo">
+        select a.id,
+               a.title,
+               a.summary,
+               a.content_markdown,
+               a.cover_image,
+               a.category_id,
+               c.name as category_name,
+               a.publish_date,
+               a.reading_time,
+               a.status
+        from article a
+                 left join category c on c.id = a.category_id
+    </sql>
+
+    <select id="selectArticleList" parameterType="BlogArticleQuery" resultMap="BlogArticleResult">
+        <include refid="selectArticleVo"/>
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (a.title like concat('%', #{keyword}, '%') or a.summary like concat('%', #{keyword}, '%'))
+            </if>
+            <if test="categoryId != null">
+                and a.category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                and a.status = #{status}
+            </if>
+        </where>
+        order by a.publish_date desc, a.id desc
+    </select>
+
+    <select id="selectArticleById" parameterType="Long" resultMap="BlogArticleResult">
+        <include refid="selectArticleVo"/>
+        where a.id = #{articleId}
+    </select>
+
+    <insert id="insertArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
+        insert into article (title, summary, content_markdown, cover_image, category_id, publish_date, reading_time, status)
+        values (#{title}, #{summary}, #{contentMarkdown}, #{coverImage}, #{categoryId}, #{publishDate}, #{readingTime}, #{status})
+    </insert>
+
+    <update id="updateArticle" parameterType="BlogArticle">
+        update article
+        set title            = #{title},
+            summary          = #{summary},
+            content_markdown = #{contentMarkdown},
+            cover_image      = #{coverImage},
+            category_id      = #{categoryId},
+            publish_date     = #{publishDate},
+            reading_time     = #{readingTime},
+            status           = #{status}
+        where id = #{id}
+    </update>
+
+    <update id="updateArticleStatus">
+        update article
+        set status = #{status}
+        where id = #{articleId}
+    </update>
+
+    <delete id="deleteArticleByIds">
+        delete
+        from article
+        where id in
+        <foreach collection="articleIds" item="articleId" open="(" separator="," close=")">
+            #{articleId}
+        </foreach>
+    </delete>
+
+    <select id="selectTagIdsByArticleId" parameterType="Long" resultType="Long">
+        select tag_id
+        from article_tag
+        where article_id = #{articleId}
+        order by tag_id
+    </select>
+
+    <select id="selectTagNamesByArticleId" parameterType="Long" resultType="String">
+        select t.name
+        from tag t
+                 inner join article_tag at on at.tag_id = t.id
+        where at.article_id = #{articleId}
+        order by t.id
+    </select>
+
+    <delete id="deleteArticleTagsByArticleId" parameterType="Long">
+        delete
+        from article_tag
+        where article_id = #{articleId}
+    </delete>
+
+    <insert id="insertArticleTags">
+        insert into article_tag (article_id, tag_id)
+        values
+        <foreach collection="tagIds" item="tagId" separator=",">
+            (#{articleId}, #{tagId})
+        </foreach>
+    </insert>
+
+</mapper>

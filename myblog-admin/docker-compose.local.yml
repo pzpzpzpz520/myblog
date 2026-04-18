@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: myblog-local-mysql
+    restart: unless-stopped
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --lower-case-table-names=1
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - myblog_mysql_data:/var/lib/mysql
+      - ./sql/local/mysql-init:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7-alpine
+    container_name: myblog-local-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - myblog_redis_data:/data
+
+  nacos:
+    image: nacos/nacos-server:v3.0.2
+    container_name: myblog-local-nacos
+    restart: unless-stopped
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "false"
+      TZ: Asia/Shanghai
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+
+volumes:
+  myblog_mysql_data:
+  myblog_redis_data:
