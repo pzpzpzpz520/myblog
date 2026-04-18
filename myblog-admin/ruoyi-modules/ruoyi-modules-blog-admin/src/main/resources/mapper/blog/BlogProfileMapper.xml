@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.blogadmin.mapper.BlogProfileMapper">
+
+    <resultMap id="BlogProfileResult" type="BlogProfile">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="title" column="title"/>
+        <result property="university" column="university"/>
+        <result property="major" column="major"/>
+        <result property="location" column="location"/>
+        <result property="email" column="email"/>
+        <result property="bio" column="bio"/>
+        <result property="focusAreas" column="focus_areas"/>
+        <result property="highlights" column="highlights"/>
+    </resultMap>
+
+    <select id="selectProfile" resultMap="BlogProfileResult">
+        select id,
+               name,
+               title,
+               university,
+               major,
+               location,
+               email,
+               bio,
+               focus_areas,
+               highlights
+        from user_profile
+        order by id asc
+        limit 1
+    </select>
+
+    <insert id="insertProfile" parameterType="BlogProfile">
+        insert into user_profile (id, name, title, university, major, location, email, bio, focus_areas, highlights)
+        values (#{id}, #{name}, #{title}, #{university}, #{major}, #{location}, #{email}, #{bio}, #{focusAreas}, #{highlights})
+    </insert>
+
+    <update id="updateProfile" parameterType="BlogProfile">
+        update user_profile
+        set name        = #{name},
+            title       = #{title},
+            university  = #{university},
+            major       = #{major},
+            location    = #{location},
+            email       = #{email},
+            bio         = #{bio},
+            focus_areas = #{focusAreas},
+            highlights  = #{highlights}
+        where id = #{id}
+    </update>
+
+</mapper>
